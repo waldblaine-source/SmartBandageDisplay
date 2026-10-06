@@ -1,165 +1,83 @@
-
+```python
 import streamlit as st
-import pandas as pd
-from datetime import datetime
 
 st.set_page_config(
     page_title="Smart Bandage",
     page_icon="🩹",
-    layout="wide",
+    layout="wide"
 )
 
-# ---------------------------------------------------------
-# Styling
-# ---------------------------------------------------------
+# -----------------------------
+# Page title
+# -----------------------------
 
-st.markdown("""
-<style>
-    .block-container {
-        max-width: 1200px;
-        padding-top: 2rem;
-        padding-bottom: 3rem;
-    }
+st.title("🩹 Smart Bandage")
+st.caption("Wound monitoring system")
 
-    .sensor-card {
-        padding: 1.25rem;
-        border: 1px solid rgba(128,128,128,.25);
-        border-radius: 16px;
-        background: rgba(128,128,128,.06);
-        min-height: 170px;
-    }
+st.divider()
 
-    .sensor-name {
-        font-size: 0.95rem;
-        opacity: .75;
-        margin-bottom: .35rem;
-    }
+# -----------------------------
+# Sensor inputs
+# -----------------------------
 
-    .sensor-value {
-        font-size: 2.25rem;
-        font-weight: 700;
-        margin-bottom: .15rem;
-    }
+st.subheader("Sensor Input")
 
-    .sensor-status {
-        font-size: .9rem;
-        opacity: .8;
-    }
+col1, col2, col3 = st.columns(3)
 
-    .connection {
-        padding: .65rem 1rem;
-        border-radius: 12px;
-        background: rgba(128,128,128,.08);
-        border: 1px solid rgba(128,128,128,.25);
-    }
-</style>
-""", unsafe_allow_html=True)
+with col1:
+    temperature = st.number_input(
+        "Temperature (°C)",
+        value=36.8,
+        step=0.1
+    )
 
+with col2:
+    moisture = st.number_input(
+        "Moisture (%)",
+        value=60.0,
+        step=1.0
+    )
 
-# ---------------------------------------------------------
-# Header
-# ---------------------------------------------------------
-
-header_left, header_right = st.columns([3, 1])
-
-with header_left:
-    st.title("🩹 Smart Bandage")
-    st.caption("Wound monitoring dashboard")
-
-with header_right:
-    st.markdown(
-        """
-        <div class="connection">
-            ⚪ <b>Prototype</b><br>
-            <span style="font-size:.85rem;opacity:.65;">
-                Manual test data
-            </span>
-        </div>
-        """,
-        unsafe_allow_html=True,
+with col3:
+    ph = st.number_input(
+        "pH",
+        value=7.0,
+        step=0.1
     )
 
 st.divider()
 
-
-# ---------------------------------------------------------
-# MANUAL SENSOR INPUT
-#
-# Replace these inputs with Arduino/Bluetooth data later.
-# ---------------------------------------------------------
-
-st.subheader("Test Sensor Data")
-
-input1, input2, input3 = st.columns(3)
-
-with input1:
-    temperature = st.number_input(
-        "Temperature (°C)",
-       
-        value=36.8,
-        
-    )
-
-with input2:
-    moisture = st.number_input(
-        "Moisture (%)",
-        min_value=0.0,
-        max_value=100.0,
-        value=60.0,
-        step=1.0,
-    )
-
-with input3:
-    ph = st.number_input(
-        "pH",
-        min_value=0.0,
-        max_value=14.0,
-        value=7.10,
-        step=0.01,
-    )
-
-
-# ---------------------------------------------------------
-# Status functions
-# ---------------------------------------------------------
-
-def temp_status(value):
-
-    if value >= 38.0:
-        return "Elevated"
-
-    if value >= 37.5:
-        return "Slightly elevated"
-
-    return "Stable"
-
-
-def moisture_status(value):
-
-    if value >= 80:
-        return "High moisture"
-
-    if value <= 30:
-        return "Low moisture"
-
-    return "Moderate"
-
-
-def ph_status(value):
-
-    if value >= 8.0:
-        return "Higher pH"
-
-    if value <= 5.5:
-        return "Lower pH"
-
-    return "Within range"
-
-
-# ---------------------------------------------------------
+# -----------------------------
 # Current readings
-# ---------------------------------------------------------
+# -----------------------------
 
+st.subheader("Current Readings")
 
+col1, col2, col3 = st.columns(3)
 
+with col1:
+    st.metric(
+        "Temperature",
+        f"{temperature:.1f} °C"
+    )
 
+with col2:
+    st.metric(
+        "Moisture",
+        f"{moisture:.0f} %"
+    )
+
+with col3:
+    st.metric(
+        "pH",
+        f"{ph:.1f}"
+    )
+
+st.divider()
+
+# -----------------------------
+# Connection status
+# -----------------------------
+
+st.caption("● Sensor connection: Prototype / Manual Input")
+```
