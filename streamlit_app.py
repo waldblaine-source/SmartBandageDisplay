@@ -103,7 +103,7 @@ with input1:
 
 with input2:
     moisture = st.number_input(
-        "Moisture (20%)",
+        "Moisture (%)",
         min_value=0.0,
         max_value=100.0,
         value=60.0,
@@ -161,78 +161,6 @@ def ph_status(value):
 # Current readings
 # ---------------------------------------------------------
 
-st.subheader("Current Readings")
-
-c1, c2, c3 = st.columns(3)
-
-
-with c1:
-    st.markdown(
-        f"""
-        <div class="sensor-card">
-
-            <div class="sensor-name">
-                🌡️ TEMPERATURE
-            </div>
-
-            <div class="sensor-value">
-                {temperature:.1f} °C
-            </div>
-
-            <div class="sensor-status">
-                {temp_status(temperature)}
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-with c2:
-    st.markdown(
-        f"""
-        <div class="sensor-card">
-
-            <div class="sensor-name">
-                💧 MOISTURE
-            </div>
-
-            <div class="sensor-value">
-                {moisture:.0f} %
-            </div>
-
-            <div class="sensor-status">
-                {moisture_status(moisture)}
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-
-with c3:
-    st.markdown(
-        f"""
-        <div class="sensor-card">
-
-            <div class="sensor-name">
-                🧪 pH
-            </div>
-
-            <div class="sensor-value">
-                {ph:.2f}
-            </div>
-
-            <div class="sensor-status">
-                {ph_status(ph)}
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
 
 
 
