@@ -94,7 +94,7 @@ input1, input2, input3 = st.columns(3)
 
 with input1:
     temperature = st.number_input(
-        "Temperature (°C)",
+        "Temperature (37°C)",
         min_value=0.0,
         max_value=50.0,
         value=36.8,
@@ -103,7 +103,7 @@ with input1:
 
 with input2:
     moisture = st.number_input(
-        "Moisture (%)",
+        "Moisture (20%)",
         min_value=0.0,
         max_value=100.0,
         value=60.0,
@@ -235,69 +235,4 @@ with c3:
     )
 
 
-# ---------------------------------------------------------
-# Test history
-# ---------------------------------------------------------
 
-if "history" not in st.session_state:
-    st.session_state.history = pd.DataFrame(
-        columns=[
-            "Time",
-            "Temperature",
-            "Moisture",
-            "pH",
-        ]
-    )
-
-
-if st.button("Record Current Readings"):
-
-    new_reading = pd.DataFrame([{
-        "Time": datetime.now(),
-        "Temperature": temperature,
-        "Moisture": moisture,
-        "pH": ph,
-    }])
-
-    st.session_state.history = pd.concat(
-        [
-            st.session_state.history,
-            new_reading,
-        ],
-        ignore_index=True,
-    )
-
-
-# ---------------------------------------------------------
-# Trends
-# ---------------------------------------------------------
-
-st.subheader("Sensor Trends")
-
-history = st.session_state.history
-
-if len(history) > 0:
-
-    tab1, tab2, tab3 = st.tabs([
-        "Temperature",
-        "Moisture",
-        "pH",
-    ])
-
-    with tab1:
-        chart = history.set_index("Time")[["Temperature"]]
-        st.line_chart(chart)
-
-    with tab2:
-        chart = history.set_index("Time")[["Moisture"]]
-        st.line_chart(chart)
-
-    with tab3:
-        chart = history.set_index("Time")[["pH"]]
-        st.line_chart(chart)
-
-else:
-
-    st.info(
-        "Enter sensor values above and click "
-        "'Record Current Readings' to
