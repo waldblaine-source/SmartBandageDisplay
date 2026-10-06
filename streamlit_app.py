@@ -1,13 +1,12 @@
+```python
 import streamlit as st
 import pandas as pd
-import numpy as np
-import time
+from datetime import datetime
 
 st.set_page_config(
     page_title="Smart Bandage",
     page_icon="🩹",
     layout="wide",
-    initial_sidebar_state="collapsed",
 )
 
 # ---------------------------------------------------------
@@ -50,13 +49,8 @@ st.markdown("""
     .connection {
         padding: .65rem 1rem;
         border-radius: 12px;
-        background: rgba(46, 160, 67, .12);
-        border: 1px solid rgba(46, 160, 67, .3);
-    }
-
-    .small-muted {
-        font-size: .85rem;
-        opacity: .65;
+        background: rgba(128,128,128,.08);
+        border: 1px solid rgba(128,128,128,.25);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -76,9 +70,9 @@ with header_right:
     st.markdown(
         """
         <div class="connection">
-            🟢 <b>Bandage connected</b><br>
-            <span class="small-muted">
-                Prototype / simulated data
+            ⚪ <b>Prototype</b><br>
+            <span style="font-size:.85rem;opacity:.65;">
+                Manual test data
             </span>
         </div>
         """,
@@ -89,133 +83,41 @@ st.divider()
 
 
 # ---------------------------------------------------------
-# Prototype controls
+# MANUAL SENSOR INPUT
+#
+# Replace these inputs with Arduino/Bluetooth data later.
 # ---------------------------------------------------------
 
-with st.sidebar:
-    st.header("Prototype Controls")
+st.subheader("Test Sensor Data")
 
-    simulate = st.toggle(
-        "Simulate live data",
-        value=True
+input1, input2, input3 = st.columns(3)
+
+with input1:
+    temperature = st.number_input(
+        "Temperature (°C)",
+        min_value=0.0,
+        max_value=50.0,
+        value=36.8,
+        step=0.1,
     )
 
-    sample_rate = st.slider(
-        "Sample interval (seconds)",
-        1,
-        10,
-        3
+with input2:
+    moisture = st.number_input(
+        "Moisture (%)",
+        min_value=0.0,
+        max_value=100.0,
+        value=60.0,
+        step=1.0,
     )
 
-    history_minutes = st.slider(
-        "History shown (minutes)",
-        5,
-        60,
-        20
+with input3:
+    ph = st.number_input(
+        "pH",
+        min_value=0.0,
+        max_value=14.0,
+        value=7.10,
+        step=0.01,
     )
-
-
-# ---------------------------------------------------------
-# Initialize simulated history
-# ---------------------------------------------------------
-
-if "history" not in st.session_state:
-
-    now = pd.Timestamp.now()
-
-    times = pd.date_range(
-        end=now,
-        periods=60,
-        freq="30s"
-    )
-
-    rng = np.random.default_rng(7)
-
-    st.session_state.history = pd.DataFrame({
-        "Time": times,
-
-        "Temperature":
-            36.7 + rng.normal(0, 0.08, 60),
-
-        "Moisture":
-            60 + rng.normal(0, 2.0, 60),
-
-        "pH":
-            7.1 + rng.normal(0, 0.04, 60),
-    })
-
-
-# ---------------------------------------------------------
-# Simulated sensor reading
-# ---------------------------------------------------------
-
-def add_simulated_reading():
-
-    history = st.session_state.history
-
-    last = history.iloc[-1]
-
-    rng = np.random.default_rng()
-
-    new_row = {
-        "Time": pd.Timestamp.now(),
-
-        "Temperature":
-            float(
-                last["Temperature"]
-                + rng.normal(0, 0.04)
-            ),
-
-        "Moisture":
-            float(
-                np.clip(
-                    last["Moisture"]
-                    + rng.normal(0, 0.8),
-                    0,
-                    100
-                )
-            ),
-
-        "pH":
-            float(
-                np.clip(
-                    last["pH"]
-                    + rng.normal(0, 0.025),
-                    4.5,
-                    9.0
-                )
-            ),
-    }
-
-    st.session_state.history = pd.concat(
-        [
-            history,
-            pd.DataFrame([new_row])
-        ],
-        ignore_index=True
-    )
-
-
-if simulate:
-    add_simulated_reading()
-
-
-# ---------------------------------------------------------
-# Select displayed history
-# ---------------------------------------------------------
-
-data = st.session_state.history.copy()
-
-cutoff = (
-    pd.Timestamp.now()
-    - pd.Timedelta(minutes=history_minutes)
-)
-
-data = data[
-    data["Time"] >= cutoff
-].copy()
-
-latest = data.iloc[-1]
 
 
 # ---------------------------------------------------------
@@ -259,14 +161,12 @@ def ph_status(value):
 # Current readings
 # ---------------------------------------------------------
 
-st.subheader("Current readings")
+st.subheader("Current Readings")
 
 c1, c2, c3 = st.columns(3)
 
 
-# Temperature
 with c1:
-
     st.markdown(
         f"""
         <div class="sensor-card">
@@ -276,22 +176,20 @@ with c1:
             </div>
 
             <div class="sensor-value">
-                {latest["Temperature"]:.1f} °C
+                {temperature:.1f} °C
             </div>
 
             <div class="sensor-status">
-                {temp_status(latest["Temperature"])}
+                {temp_status(temperature)}
             </div>
 
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 
-# Moisture
 with c2:
-
     st.markdown(
         f"""
         <div class="sensor-card">
@@ -301,22 +199,20 @@ with c2:
             </div>
 
             <div class="sensor-value">
-                {latest["Moisture"]:.0f} %
+                {moisture:.0f} %
             </div>
 
             <div class="sensor-status">
-                {moisture_status(latest["Moisture"])}
+                {moisture_status(moisture)}
             </div>
 
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 
-# pH
 with c3:
-
     st.markdown(
         f"""
         <div class="sensor-card">
@@ -326,129 +222,82 @@ with c3:
             </div>
 
             <div class="sensor-value">
-                {latest["pH"]:.2f}
+                {ph:.2f}
             </div>
 
             <div class="sensor-status">
-                {ph_status(latest["pH"])}
+                {ph_status(ph)}
             </div>
 
         </div>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 
 # ---------------------------------------------------------
-# Sensor trends
+# Test history
 # ---------------------------------------------------------
 
-st.write("")
-
-st.subheader("Sensor trends")
-
-tab1, tab2, tab3 = st.tabs([
-    "Temperature",
-    "Moisture",
-    "pH"
-])
-
-
-with tab1:
-
-    chart_data = data.set_index("Time")[[
-        "Temperature"
-    ]]
-
-    st.line_chart(
-        chart_data,
-        height=300
-    )
-
-    st.caption(
-        "Temperature trend from the bandage sensor."
+if "history" not in st.session_state:
+    st.session_state.history = pd.DataFrame(
+        columns=[
+            "Time",
+            "Temperature",
+            "Moisture",
+            "pH",
+        ]
     )
 
 
-with tab2:
+if st.button("Record Current Readings"):
 
-    chart_data = data.set_index("Time")[[
-        "Moisture"
-    ]]
+    new_reading = pd.DataFrame([{
+        "Time": datetime.now(),
+        "Temperature": temperature,
+        "Moisture": moisture,
+        "pH": ph,
+    }])
 
-    st.line_chart(
-        chart_data,
-        height=300
-    )
-
-    st.caption(
-        "Moisture trend from the nylon-tape sensor."
-    )
-
-
-with tab3:
-
-    chart_data = data.set_index("Time")[[
-        "pH"
-    ]]
-
-    st.line_chart(
-        chart_data,
-        height=300
-    )
-
-    st.caption(
-        "PANI/SPCE pH measurement after calibration."
+    st.session_state.history = pd.concat(
+        [
+            st.session_state.history,
+            new_reading,
+        ],
+        ignore_index=True,
     )
 
 
 # ---------------------------------------------------------
-# System information
+# Trends
 # ---------------------------------------------------------
 
-st.divider()
+st.subheader("Sensor Trends")
 
-info1, info2, info3 = st.columns(3)
+history = st.session_state.history
 
+if len(history) > 0:
 
-with info1:
+    tab1, tab2, tab3 = st.tabs([
+        "Temperature",
+        "Moisture",
+        "pH",
+    ])
 
-    st.metric(
-        "Last update",
-        latest["Time"].strftime("%H:%M:%S")
-    )
+    with tab1:
+        chart = history.set_index("Time")[["Temperature"]]
+        st.line_chart(chart)
 
+    with tab2:
+        chart = history.set_index("Time")[["Moisture"]]
+        st.line_chart(chart)
 
-with info2:
+    with tab3:
+        chart = history.set_index("Time")[["pH"]]
+        st.line_chart(chart)
 
-    st.metric(
-        "Samples",
-        len(data)
-    )
+else:
 
-
-with info3:
-
-    st.metric(
-        "Connection",
-        "BLE prototype"
-        if not simulate
-        else "Simulation"
-    )
-
-
-st.caption(
-    "Prototype interface only. Simulated values are "
-    "not clinical measurements."
-)
-
-
-# ---------------------------------------------------------
-# Live refresh
-# ---------------------------------------------------------
-
-if simulate:
-
-    time.sleep(sample_rate)
-
-    st.rerun()
+    st.info(
+        "Enter sensor values above and click "
+        "'Record Current Readings' to
