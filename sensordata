@@ -1,1 +1,6 @@
 import streamlit as st
+import serial
+ser = serial.Serial()
+
+def get_sensor_data():
+  line = ser.
