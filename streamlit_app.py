@@ -80,4 +80,4 @@ st.divider()
 # -----------------------------
 
 st.caption("● Sensor connection: Prototype / Manual Input")
-```
+
