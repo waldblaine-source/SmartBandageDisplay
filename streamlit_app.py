@@ -94,11 +94,11 @@ input1, input2, input3 = st.columns(3)
 
 with input1:
     temperature = st.number_input(
-        "Temperature (37°C)",
+        "Temperature (°C)",
         min_value=0.0,
         max_value=50.0,
         value=36.8,
-        step=0.1,
+        
     )
 
 with input2:
