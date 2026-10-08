@@ -27,9 +27,7 @@ col1, col2, col3 = st.columns(3)
 with col1:
     temperature = st.number_input(
         "Temperature (°C)",
-        value=36.8,
-        step=0.1
-    )
+        value=36.8)
 
 with col2:
     moisture = st.number_input(
