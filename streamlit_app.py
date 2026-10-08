@@ -26,8 +26,8 @@ col1, col2, col3 = st.columns(3)
 
 with col1:
     temperature = st.number_input(
-        "Temperature (°C)",
-        value=36.8)
+        "Temperature (°C)"
+        value = "Temp_sensor
 
 with col2:
     moisture = st.number_input(
